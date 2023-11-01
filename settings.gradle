@@ -1,0 +1,3 @@
+rootProject.name = 'financial-transaction-management-system'
+include 'user-account-service'
+
