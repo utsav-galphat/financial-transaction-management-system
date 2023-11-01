@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user-account")
@@ -46,12 +48,21 @@ public class UserAccountServiceController {
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public String addNewEntry(@RequestBody UserAccountDto userAccountDto) {
-        return userAccountService.createAccountDetails(userAccountDto);
+        return userAccountService.createUserAccountDetails(userAccountDto);
     }
 
     @PutMapping(value = "/update/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserAccount addNewEntry(@RequestBody UserAccountDto userAccountDto, @PathVariable Long id) {
-        return userAccountService.updateAccountDetails(userAccountDto, id);
+    public ResponseEntity<UserAccount> updateEntry(@RequestBody UserAccountDto userAccountDto, @PathVariable Long id) {
+        Optional<UserAccount> userAccount = userAccountService.updateUserAccountDetails(userAccountDto, id);
+
+        return userAccount.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
+    @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteEntry(@PathVariable Long id){
+        return userAccountService.deleteUserAccount(id);
+    }
+
 }

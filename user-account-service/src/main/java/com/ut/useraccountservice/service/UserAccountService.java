@@ -22,12 +22,12 @@ public class UserAccountService {
     }
 
     @Transactional
-    public UserAccount getUserAccountDetails(Long id){
-        Optional<UserAccount> userAccount =  userAccountRepository.findById(id);
+    public UserAccount getUserAccountDetails(Long id) {
+        Optional<UserAccount> userAccount = userAccountRepository.findById(id);
         return userAccount.get();
     }
 
-    public String createAccountDetails(UserAccountDto userAccountDto) {
+    public String createUserAccountDetails(UserAccountDto userAccountDto) {
         UserAccount userAccount = new UserAccount();
         userAccount.setUsername(userAccountDto.getName());
         userAccount.setEmail(userAccountDto.getEmail());
@@ -36,15 +36,32 @@ public class UserAccountService {
         return "Data Saved Successfully";
     }
 
-    public UserAccount updateAccountDetails(UserAccountDto userAccountDto, Long id){
-        UserAccount userAccount = userAccountRepository.findById(id).get();
-        userAccount.setUsername(userAccountDto.getName());
-        userAccount.setEmail(userAccountDto.getEmail());
-        userAccount.setPassword(userAccountDto.getPassword());
+    public Optional<UserAccount> updateUserAccountDetails(UserAccountDto userAccountDto, Long id) {
+        Optional<UserAccount> userAccount = userAccountRepository.findById(id);
+        if(userAccount.isPresent()) {
+            userAccount.get().setUsername(userAccountDto.getName());
+            userAccount.get().setEmail(userAccountDto.getEmail());
+            userAccount.get().setPassword(userAccountDto.getPassword());
 
-        userAccount.setUpdatedAt(new Date());
-        userAccountRepository.save(userAccount);
+            userAccount.get().setUpdatedAt(new Date());
+            userAccountRepository.save(userAccount.get());
+            return userAccountRepository.findById(id);
 
-        return userAccountRepository.findById(id).get();
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    public String deleteUserAccount(Long id) {
+        Optional<UserAccount> userAccount = userAccountRepository.findById(id);
+
+        if(userAccount.isPresent()) {
+            userAccountRepository.deleteById(id);
+            return "Account Deleted of " + id + ":" + userAccount.get().getUsername();
+        }
+        else
+            return "Account not Found for id " + id;
+
     }
 }
